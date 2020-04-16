@@ -9,15 +9,53 @@
 #include <functional>
 #include <cstdlib>
 #include <vector>
+#include <cstring>
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
+
+const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
+
+#ifndef _DEBUG
+const bool enableValidationLayers = false;
+#else
+const bool enableValidationLayers = true;
+#endif
 
 class Application
 {
 private:
     GLFWwindow* window;
     VkInstance instance;
+
+    bool checkValidationLayersSupport()
+    {
+        uint32_t layerCount = 0;
+        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+        std::vector<VkLayerProperties> availableLayers(layerCount);
+        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+        for(const char* layerName : validationLayers)
+        {
+            bool layerFound = false;
+
+            for(const auto& layerProperties : availableLayers)
+            {
+                if(strcmp(layerName, layerProperties.layerName) == 0)
+                {
+                    layerFound = true;
+                    break;
+                }
+            }
+
+            if(!layerFound)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     void createInstance()
     {
@@ -49,6 +87,11 @@ private:
         if(result != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create instance!");
+        }
+
+        if(enableValidationLayers && !checkValidationLayersSupport())
+        {
+            throw std::runtime_error("Validation layers requested, but not available!");
         }
     }
 
