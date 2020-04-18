@@ -233,12 +233,20 @@ QueueFamilyIndices YerbaEngine::findQueueFamilies(VkPhysicalDevice device)
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
     uint32_t i {0};
+    VkBool32 presentSupport {false};
     
     for(const auto& queueFamily : queueFamilies)
     {
         if(queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
         {
             indices.graphicsFamily = i;
+        }
+
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+
+        if(presentSupport)
+        {
+            indices.presentFamily = i;
         }
 
         if(indices.isComplete()) break;
