@@ -207,7 +207,7 @@ void YerbaEngine::pickPhysicalDevice()
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    physicalDevice = VK_NULL_HANDLE;
 
     for(const auto& device : devices)
     {
@@ -249,6 +249,49 @@ QueueFamilyIndices YerbaEngine::findQueueFamilies(VkPhysicalDevice device)
     return indices;
 }
 
+void YerbaEngine::createLogicalDevice()
+{
+    QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+
+    VkDeviceQueueCreateInfo queueCreateInfo = {};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.pNext = nullptr; // No extension information
+    //queueCreateInfo.flags;
+    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+    queueCreateInfo.queueCount = 1;
+    float queuePriority {1.0f};
+    queueCreateInfo.pQueuePriorities = &queuePriority;
+
+    VkPhysicalDeviceFeatures deviceFeatures = {};
+
+    VkDeviceCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pNext = nullptr; // No extension information
+    //createInfo.flags;
+    createInfo.queueCreateInfoCount = 1;
+    createInfo.pQueueCreateInfos = &queueCreateInfo;
+
+    if(enableValidationLayers)
+    {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+    }
+    else
+    {
+        createInfo.enabledLayerCount = 0;
+        createInfo.ppEnabledLayerNames = nullptr;
+    }
+
+    //createInfo.enabledExtensionCount;
+    //createInfo.ppEnabledExtensionNames;
+    createInfo.pEnabledFeatures = &deviceFeatures;
+    
+    if(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create logical device!");
+    }
+}
+
 void YerbaEngine::initWindow()
 {
     glfwInit();
@@ -261,6 +304,8 @@ void YerbaEngine::initVulkan()
 {
     createInstance();
     setupDebugMessenger();
+    pickPhysicalDevice();
+    createLogicalDevice();
 }
 
 void YerbaEngine::mainLoop()
@@ -273,6 +318,8 @@ void YerbaEngine::mainLoop()
 
 void YerbaEngine::cleanup()
 {
+    vkDestroyDevice(device, nullptr);
+
     if(enableValidationLayers)
     {
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);

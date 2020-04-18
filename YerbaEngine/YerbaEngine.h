@@ -33,6 +33,8 @@ private:
     GLFWwindow* window;
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
+    VkPhysicalDevice physicalDevice;
+    VkDevice device;
 
     std::vector<const char*> getRequiredExtensions();
     bool checkValidationLayersSupport();
@@ -42,6 +44,7 @@ private:
     bool isDeviceSuitable(VkPhysicalDevice device);
     void pickPhysicalDevice();
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+    void createLogicalDevice();
 
     void initWindow();
     void initVulkan();
