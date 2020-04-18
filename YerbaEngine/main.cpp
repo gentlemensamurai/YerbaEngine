@@ -8,9 +8,9 @@ int main()
     {
         application.run();
     }
-    catch(const std::exception& exeption)
+    catch(const std::exception& exception)
     {
-        std::cerr << exeption.what() << std::endl;
+        std::cerr << exception.what() << std::endl;
         return EXIT_FAILURE;
     }
 

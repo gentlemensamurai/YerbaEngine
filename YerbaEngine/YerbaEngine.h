@@ -13,9 +13,19 @@
 #include <vector>
 #include <cstring>
 #include <map>
+#include <optional>
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
+
+struct QueueFamilyIndices
+{
+    std::optional<uint32_t> graphicsFamily;
+    bool isComplete()
+    {
+        return graphicsFamily.has_value();
+    }
+};
 
 class YerbaEngine
 {
@@ -31,6 +41,7 @@ private:
     void setupDebugMessenger();
     bool isDeviceSuitable(VkPhysicalDevice device);
     void pickPhysicalDevice();
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
     void initWindow();
     void initVulkan();
