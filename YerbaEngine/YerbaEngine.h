@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <vector>
 #include <cstring>
+#include <map>
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -28,6 +29,8 @@ private:
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
     void createInstance();
     void setupDebugMessenger();
+    bool isDeviceSuitable(VkPhysicalDevice device);
+    void pickPhysicalDevice();
 
     void initWindow();
     void initVulkan();
