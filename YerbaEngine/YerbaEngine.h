@@ -35,6 +35,7 @@ private:
     VkDebugUtilsMessengerEXT debugMessenger;
     VkPhysicalDevice physicalDevice;
     VkDevice device;
+    VkQueue graphicsQueue;
 
     std::vector<const char*> getRequiredExtensions();
     bool checkValidationLayersSupport();
