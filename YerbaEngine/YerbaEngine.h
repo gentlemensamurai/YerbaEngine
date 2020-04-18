@@ -36,6 +36,7 @@ private:
     VkPhysicalDevice physicalDevice;
     VkDevice device;
     VkQueue graphicsQueue;
+    VkSurfaceKHR surface;
 
     std::vector<const char*> getRequiredExtensions();
     bool checkValidationLayersSupport();
@@ -46,6 +47,7 @@ private:
     void pickPhysicalDevice();
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     void createLogicalDevice();
+    void createSurface();
 
     void initWindow();
     void initVulkan();
