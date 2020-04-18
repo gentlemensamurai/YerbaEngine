@@ -14,6 +14,7 @@
 #include <cstring>
 #include <map>
 #include <optional>
+#include <set>
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -39,6 +40,7 @@ private:
     VkDevice device;
     VkQueue graphicsQueue;
     VkSurfaceKHR surface;
+    VkQueue presentQueue;
 
     std::vector<const char*> getRequiredExtensions();
     bool checkValidationLayersSupport();
