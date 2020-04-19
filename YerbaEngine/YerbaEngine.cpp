@@ -497,6 +497,11 @@ void YerbaEngine::createImageViews()
     }
 }
 
+void YerbaEngine::createGraphicsPipeline()
+{
+
+}
+
 void YerbaEngine::initWindow()
 {
     glfwInit();
@@ -514,6 +519,7 @@ void YerbaEngine::initVulkan()
     createLogicalDevice();
     createSwapChain();
     createImageViews();
+    createGraphicsPipeline();
 }
 
 void YerbaEngine::mainLoop()

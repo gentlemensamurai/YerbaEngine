@@ -17,6 +17,7 @@
 #include <set>
 #include <cstdint>
 #include <algorithm>
+#include <fstream>
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -82,6 +83,7 @@ private:
     void createSurface();
     void createSwapChain();
     void createImageViews();
+    void createGraphicsPipeline();
 
     void initWindow();
     void initVulkan();
