@@ -33,6 +33,15 @@ struct QueueFamilyIndices
 class YerbaEngine
 {
 private:
+    const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
+    const std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+
+#ifndef _DEBUG
+    const bool enableValidationLayers = false;
+#else
+    const bool enableValidationLayers = true;
+#endif
+
     GLFWwindow* window;
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
@@ -44,6 +53,7 @@ private:
 
     std::vector<const char*> getRequiredExtensions();
     bool checkValidationLayersSupport();
+    bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
     void createInstance();
     void setupDebugMessenger();

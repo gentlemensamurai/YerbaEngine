@@ -1,13 +1,5 @@
 #include "YerbaEngine.h"
 
-const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
-
-#ifndef _DEBUG
-const bool enableValidationLayers = false;
-#else
-const bool enableValidationLayers = true;
-#endif
-
 VkResult CreateDebugUtilsMessengerEXT
 (
     VkInstance instance,
@@ -94,6 +86,24 @@ bool YerbaEngine::checkValidationLayersSupport()
     }
 
     return true;
+}
+
+bool YerbaEngine::checkDeviceExtensionSupport(VkPhysicalDevice device)
+{
+    uint32_t extensionCount {0};
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+    for(const auto& extension : availableExtensions)
+    {
+        requiredExtensions.erase(extension.extensionName);
+    }
+
+    return requiredExtensions.empty();
 }
 
 void YerbaEngine::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
@@ -190,8 +200,9 @@ void YerbaEngine::setupDebugMessenger()
 bool YerbaEngine::isDeviceSuitable(VkPhysicalDevice device)
 {
     QueueFamilyIndices indices = findQueueFamilies(device);
+    bool extensionsSupported = checkDeviceExtensionSupport(device);
 
-    return indices.isComplete();
+    return indices.isComplete() && extensionsSupported;
 }
 
 void YerbaEngine::pickPhysicalDevice()
