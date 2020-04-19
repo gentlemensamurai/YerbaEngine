@@ -30,6 +30,13 @@ struct QueueFamilyIndices
     }
 };
 
+struct SwapChainSupportDetails
+{
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
+};
+
 class YerbaEngine
 {
 private:
@@ -60,6 +67,7 @@ private:
     bool isDeviceSuitable(VkPhysicalDevice device);
     void pickPhysicalDevice();
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
     void createLogicalDevice();
     void createSurface();
 
