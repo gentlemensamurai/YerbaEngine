@@ -59,6 +59,7 @@ private:
     VkQueue graphicsQueue;
     VkSurfaceKHR surface;
     VkQueue presentQueue;
+    VkSwapchainKHR swapChain;
 
     std::vector<const char*> getRequiredExtensions();
     bool checkValidationLayersSupport();
@@ -75,6 +76,7 @@ private:
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     void createLogicalDevice();
     void createSurface();
+    void createSwapChain();
 
     void initWindow();
     void initVulkan();
