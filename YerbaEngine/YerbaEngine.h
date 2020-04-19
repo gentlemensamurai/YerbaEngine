@@ -15,6 +15,8 @@
 #include <map>
 #include <optional>
 #include <set>
+#include <cstdint>
+#include <algorithm>
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -70,6 +72,7 @@ private:
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     void createLogicalDevice();
     void createSurface();
 

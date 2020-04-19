@@ -327,6 +327,23 @@ VkPresentModeKHR YerbaEngine::chooseSwapPresentMode(const std::vector<VkPresentM
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
+VkExtent2D YerbaEngine::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
+{
+    if(capabilities.currentExtent.width != UINT32_MAX)
+    {
+        return capabilities.currentExtent;
+    }
+    else
+    {
+        VkExtent2D actualExtent = {WIDTH, HEIGHT};
+
+        actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
+        actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));    
+    
+        return actualExtent;
+    }
+}
+
 void YerbaEngine::createLogicalDevice()
 {
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
