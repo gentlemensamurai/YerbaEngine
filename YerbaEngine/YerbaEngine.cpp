@@ -314,6 +314,19 @@ VkSurfaceFormatKHR YerbaEngine::chooseSwapSurfaceFormat(const std::vector<VkSurf
     return availableFormats[0];
 }
 
+VkPresentModeKHR YerbaEngine::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+{
+    for(const auto& availablePresetMode : availablePresentModes)
+    {
+        if(availablePresetMode == VK_PRESENT_MODE_MAILBOX_KHR)
+        {
+            return availablePresetMode;
+        }
+    }
+
+    return VK_PRESENT_MODE_FIFO_KHR;
+}
+
 void YerbaEngine::createLogicalDevice()
 {
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
