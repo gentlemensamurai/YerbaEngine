@@ -63,6 +63,7 @@ private:
     std::vector<VkImage> swapChainImages;
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
+    std::vector<VkImageView> swapChainImageViews;
 
     std::vector<const char*> getRequiredExtensions();
     bool checkValidationLayersSupport();
@@ -80,6 +81,7 @@ private:
     void createLogicalDevice();
     void createSurface();
     void createSwapChain();
+    void createImageViews();
 
     void initWindow();
     void initVulkan();
