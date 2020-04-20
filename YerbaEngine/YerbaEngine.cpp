@@ -69,7 +69,7 @@ std::vector<const char*> YerbaEngine::getRequiredExtensions()
 
     std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-    if(enableValidationLayers)
+    if(ENABLE_VALIDATION_LAYERS)
     {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
@@ -84,7 +84,7 @@ bool YerbaEngine::checkValidationLayersSupport()
     std::vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-    for(const char* layerName : validationLayers)
+    for(const char* layerName : VALIDATION_LAYERS)
     {
         bool layerFound{ false };
 
@@ -114,7 +114,7 @@ bool YerbaEngine::checkDeviceExtensionSupport(VkPhysicalDevice device)
     std::vector<VkExtensionProperties> availableExtensions(extensionCount);
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
-    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+    std::set<std::string> requiredExtensions(DEVICE_EXTENSIONS.begin(), DEVICE_EXTENSIONS.end());
 
     for(const auto& extension : availableExtensions)
     {
@@ -162,7 +162,7 @@ void YerbaEngine::createInstance()
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
 
-    if(enableValidationLayers)
+    if(ENABLE_VALIDATION_LAYERS)
     {
         instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
         instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
@@ -176,12 +176,12 @@ void YerbaEngine::createInstance()
         instanceCreateInfo.pNext = nullptr;
     }
 
-    if(enableValidationLayers)
+    if(ENABLE_VALIDATION_LAYERS)
     {
         if(checkValidationLayersSupport())
         {
-            instanceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-            instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
+            instanceCreateInfo.enabledLayerCount = static_cast<uint32_t>(VALIDATION_LAYERS.size());
+            instanceCreateInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
         }
         else
         {
@@ -204,7 +204,7 @@ void YerbaEngine::createInstance()
 
 void YerbaEngine::setupDebugMessenger()
 {
-    if(!enableValidationLayers) return;
+    if(!ENABLE_VALIDATION_LAYERS) return;
 
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
     populateDebugMessengerCreateInfo(createInfo);
@@ -390,10 +390,10 @@ void YerbaEngine::createLogicalDevice()
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
-    if(enableValidationLayers)
+    if(ENABLE_VALIDATION_LAYERS)
     {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
+        createInfo.enabledLayerCount = static_cast<uint32_t>(VALIDATION_LAYERS.size());
+        createInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
     }
     else
     {
@@ -401,8 +401,8 @@ void YerbaEngine::createLogicalDevice()
         createInfo.ppEnabledLayerNames = nullptr;
     }
 
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(DEVICE_EXTENSIONS.size());
+    createInfo.ppEnabledExtensionNames = DEVICE_EXTENSIONS.data();
     createInfo.pEnabledFeatures = &deviceFeatures;
     
     if(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
@@ -543,6 +543,58 @@ void YerbaEngine::createGraphicsPipeline()
 
     VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
+    vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputInfo.pNext = nullptr; // No extension information
+    //vertexInputInfo.flags;
+    vertexInputInfo.vertexBindingDescriptionCount = 0;
+    vertexInputInfo.pVertexBindingDescriptions = nullptr;
+    vertexInputInfo.vertexAttributeDescriptionCount = 0;
+    vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+
+    VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
+    inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    inputAssembly.pNext = nullptr; // No extension information
+    //inputAssembly.flags;
+    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+    VkViewport viewport = {};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = (float)swapChainExtent.width;
+    viewport.height = (float)swapChainExtent.height;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    VkRect2D scissor = {};
+    scissor.offset = {0, 0};
+    scissor.extent = swapChainExtent;
+
+    VkPipelineViewportStateCreateInfo viewportState = {};
+    viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    viewportState.pNext = nullptr; // No extension information
+    //viewportState.flags;
+    viewportState.viewportCount = 1;
+    viewportState.pViewports = &viewport;
+    viewportState.scissorCount = 1;
+    viewportState.pScissors = &scissor;
+
+    VkPipelineRasterizationStateCreateInfo rasterizer = {};
+    rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizer.pNext = nullptr; // No extension information
+    //rasterizer.flags;
+    rasterizer.depthClampEnable = VK_FALSE;
+    rasterizer.rasterizerDiscardEnable = VK_FALSE;
+    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer.depthBiasEnable = VK_FALSE;
+    rasterizer.depthBiasConstantFactor = 0.0f;
+    rasterizer.depthBiasClamp = 0.0f;
+    rasterizer.depthBiasSlopeFactor = 0.0f;
+    rasterizer.lineWidth = 1.0f;
+
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
@@ -604,7 +656,7 @@ void YerbaEngine::cleanup()
     vkDestroySwapchainKHR(device, swapChain, nullptr);
     vkDestroyDevice(device, nullptr);
 
-    if(enableValidationLayers)
+    if(ENABLE_VALIDATION_LAYERS)
     {
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     }

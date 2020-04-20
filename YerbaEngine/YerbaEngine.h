@@ -43,13 +43,13 @@ struct SwapChainSupportDetails
 class YerbaEngine
 {
 private:
-    const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
-    const std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+    const std::vector<const char*> VALIDATION_LAYERS = { "VK_LAYER_KHRONOS_validation" };
+    const std::vector<const char*> DEVICE_EXTENSIONS = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
 #ifndef _DEBUG
     const bool enableValidationLayers = false;
 #else
-    const bool enableValidationLayers = true;
+    const bool ENABLE_VALIDATION_LAYERS = true;
 #endif
 
     GLFWwindow* window;
