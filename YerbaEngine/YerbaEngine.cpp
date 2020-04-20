@@ -63,8 +63,8 @@ std::vector<char> YerbaEngine::readFile(const std::string& filename)
 
 std::vector<const char*> YerbaEngine::getRequiredExtensions()
 {
-    uint32_t glfwExtensionCount{ 0 };
-    const char** glfwExtensions{ nullptr };
+    uint32_t glfwExtensionCount {0};
+    const char** glfwExtensions {nullptr};
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
     std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
@@ -79,14 +79,14 @@ std::vector<const char*> YerbaEngine::getRequiredExtensions()
 
 bool YerbaEngine::checkValidationLayersSupport()
 {
-    uint32_t layerCount{ 0 };
+    uint32_t layerCount {0};
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
     std::vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
     for(const char* layerName : VALIDATION_LAYERS)
     {
-        bool layerFound{ false };
+        bool layerFound {false};
 
         for(const auto& layerProperties : availableLayers)
         {
@@ -144,7 +144,7 @@ void YerbaEngine::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateIn
 
 void YerbaEngine::createInstance()
 {
-    VkApplicationInfo applicationInfo = {};
+    VkApplicationInfo applicationInfo {};
     applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     applicationInfo.pNext = nullptr; // No extension information
     applicationInfo.pApplicationName = "Mate Game";
@@ -155,12 +155,12 @@ void YerbaEngine::createInstance()
 
     std::vector<const char*> extensions = getRequiredExtensions();
 
-    VkInstanceCreateInfo instanceCreateInfo = {};
+    VkInstanceCreateInfo instanceCreateInfo {};
     instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     //instanceCreateInfo.flags;
     instanceCreateInfo.pApplicationInfo = &applicationInfo;
 
-    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo {};
 
     if(ENABLE_VALIDATION_LAYERS)
     {
@@ -206,7 +206,7 @@ void YerbaEngine::setupDebugMessenger()
 {
     if(!ENABLE_VALIDATION_LAYERS) return;
 
-    VkDebugUtilsMessengerCreateInfoEXT createInfo;
+    VkDebugUtilsMessengerCreateInfoEXT createInfo {};
     populateDebugMessengerCreateInfo(createInfo);
 
     if(CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
@@ -262,7 +262,7 @@ void YerbaEngine::pickPhysicalDevice()
 
 QueueFamilyIndices YerbaEngine::findQueueFamilies(VkPhysicalDevice device)
 {
-    QueueFamilyIndices indices;
+    QueueFamilyIndices indices {};
     uint32_t queueFamilyCount {0};
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
@@ -295,7 +295,7 @@ QueueFamilyIndices YerbaEngine::findQueueFamilies(VkPhysicalDevice device)
 
 SwapChainSupportDetails YerbaEngine::querySwapChainSupport(VkPhysicalDevice device)
 {
-    SwapChainSupportDetails details;
+    SwapChainSupportDetails details {};
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
 
     uint32_t formatCount {0};
@@ -353,7 +353,7 @@ VkExtent2D YerbaEngine::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabil
     }
     else
     {
-        VkExtent2D actualExtent = {WIDTH, HEIGHT};
+        VkExtent2D actualExtent {WIDTH, HEIGHT};
 
         actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
         actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));    
@@ -438,7 +438,7 @@ void YerbaEngine::createSwapChain()
         imageCount = swapChainSupport.capabilities.maxImageCount;
     }
 
-    VkSwapchainCreateInfoKHR createInfo = {};
+    VkSwapchainCreateInfoKHR createInfo {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.pNext = nullptr; // No extension information
     //createInfo.flags;
@@ -491,7 +491,7 @@ void YerbaEngine::createImageViews()
 
     for(size_t i = 0; i < swapChainImages.size(); i++)
     {
-        VkImageViewCreateInfo createInfo = {};
+        VkImageViewCreateInfo createInfo {};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         createInfo.pNext = nullptr; // No extension information
         //createInfo.flags;
@@ -523,7 +523,7 @@ void YerbaEngine::createGraphicsPipeline()
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
 
-    VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
+    VkPipelineShaderStageCreateInfo vertShaderStageInfo {};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertShaderStageInfo.pNext = nullptr; // No extension information
     //vertShaderStageInfo.flags;
@@ -532,7 +532,7 @@ void YerbaEngine::createGraphicsPipeline()
     vertShaderStageInfo.pName = "main";
     vertShaderStageInfo.pSpecializationInfo = nullptr; // No constants values for shader
 
-    VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
+    VkPipelineShaderStageCreateInfo fragShaderStageInfo {};
     fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     fragShaderStageInfo.pNext = nullptr; // No extension information
     //fragShaderStageInfo.flags;
@@ -541,9 +541,9 @@ void YerbaEngine::createGraphicsPipeline()
     fragShaderStageInfo.pName = "main";
     fragShaderStageInfo.pSpecializationInfo = nullptr; // No constants values for shader
 
-    VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+    VkPipelineShaderStageCreateInfo shaderStages[] {vertShaderStageInfo, fragShaderStageInfo};
 
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.pNext = nullptr; // No extension information
     //vertexInputInfo.flags;
@@ -552,14 +552,14 @@ void YerbaEngine::createGraphicsPipeline()
     vertexInputInfo.vertexAttributeDescriptionCount = 0;
     vertexInputInfo.pVertexAttributeDescriptions = nullptr;
 
-    VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
+    VkPipelineInputAssemblyStateCreateInfo inputAssembly {};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     inputAssembly.pNext = nullptr; // No extension information
     //inputAssembly.flags;
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-    VkViewport viewport = {};
+    VkViewport viewport {};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
     viewport.width = (float)swapChainExtent.width;
@@ -567,11 +567,11 @@ void YerbaEngine::createGraphicsPipeline()
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
-    VkRect2D scissor = {};
+    VkRect2D scissor {};
     scissor.offset = {0, 0};
     scissor.extent = swapChainExtent;
 
-    VkPipelineViewportStateCreateInfo viewportState = {};
+    VkPipelineViewportStateCreateInfo viewportState {};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     viewportState.pNext = nullptr; // No extension information
     //viewportState.flags;
@@ -580,7 +580,7 @@ void YerbaEngine::createGraphicsPipeline()
     viewportState.scissorCount = 1;
     viewportState.pScissors = &scissor;
 
-    VkPipelineRasterizationStateCreateInfo rasterizer = {};
+    VkPipelineRasterizationStateCreateInfo rasterizer {};
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizer.pNext = nullptr; // No extension information
     //rasterizer.flags;
@@ -595,13 +595,24 @@ void YerbaEngine::createGraphicsPipeline()
     rasterizer.depthBiasSlopeFactor = 0.0f;
     rasterizer.lineWidth = 1.0f;
 
+    VkPipelineMultisampleStateCreateInfo multisampling {};
+    multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multisampling.pNext = nullptr; // No extension information
+    //multisampling.flags;
+    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    multisampling.sampleShadingEnable = VK_FALSE;
+    multisampling.minSampleShading = 1.0f; // Optional
+    multisampling.pSampleMask = nullptr; // Optional
+    multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
+    multisampling.alphaToOneEnable = VK_FALSE; // Optional
+
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
 
 VkShaderModule YerbaEngine::createShaderModule(const std::vector<char>& code)
 {
-    VkShaderModuleCreateInfo createInfo = {};
+    VkShaderModuleCreateInfo createInfo {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.pNext = nullptr; // No extension information
     //createInfo.flags;

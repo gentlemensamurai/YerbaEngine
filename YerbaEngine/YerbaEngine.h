@@ -19,9 +19,6 @@
 #include <algorithm>
 #include <fstream>
 
-const int WIDTH = 800;
-const int HEIGHT = 600;
-
 struct QueueFamilyIndices
 {
     std::optional<uint32_t> graphicsFamily;
@@ -43,13 +40,15 @@ struct SwapChainSupportDetails
 class YerbaEngine
 {
 private:
-    const std::vector<const char*> VALIDATION_LAYERS = { "VK_LAYER_KHRONOS_validation" };
-    const std::vector<const char*> DEVICE_EXTENSIONS = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+    const int WIDTH {800};
+    const int HEIGHT {600};
+    const std::vector<const char*> VALIDATION_LAYERS { "VK_LAYER_KHRONOS_validation" };
+    const std::vector<const char*> DEVICE_EXTENSIONS { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
 #ifndef _DEBUG
-    const bool enableValidationLayers = false;
+    const bool ENABLE_VALIDATION_LAYERS {false};
 #else
-    const bool ENABLE_VALIDATION_LAYERS = true;
+    const bool ENABLE_VALIDATION_LAYERS {true};
 #endif
 
     GLFWwindow* window;
