@@ -66,6 +66,8 @@ private:
     std::vector<VkImageView> swapChainImageViews;
     VkRenderPass renderPass;
     VkPipelineLayout pipelineLayout;
+    VkPipeline graphicsPipeline;
+    std::vector<VkFramebuffer> swapChainFramebuffers;
 
     static std::vector<char> readFile(const std::string& filename);
     std::vector<const char*> getRequiredExtensions();
@@ -88,6 +90,7 @@ private:
     void createGraphicsPipeline();
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void createRenderPass();
+    void createFramebuffers();
 
     void initWindow();
     void initVulkan();
