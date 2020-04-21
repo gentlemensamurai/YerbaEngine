@@ -726,6 +726,16 @@ void YerbaEngine::createRenderPass()
     //subpass.preserveAttachmentCount;
     //subpass.pPreserveAttachments;
 
+    VkSubpassDependency dependency {};
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcAccessMask = 0;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependency.dependencyFlags;
+
     VkRenderPassCreateInfo renderPassInfo {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.pNext = nullptr; // No extension information
@@ -734,8 +744,8 @@ void YerbaEngine::createRenderPass()
     renderPassInfo.pAttachments = &colorAttachment;
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
-    //renderPassInfo.dependencyCount;
-    //renderPassInfo.pDependencies;
+    renderPassInfo.dependencyCount = 1;
+    renderPassInfo.pDependencies = &dependency;
 
     if(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
     {
@@ -855,7 +865,47 @@ void YerbaEngine::createSemaphores()
 
 void YerbaEngine::drawFrame()
 {
+    uint32_t imageIndex {0};
+    vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
+    VkSubmitInfo submitInfo {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.pNext = nullptr; // No extension information
+
+    VkSemaphore waitSemaphores[] {imageAvailableSemaphore};
+    VkPipelineStageFlags waitStages[] {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+
+    VkSemaphore signalSemaphores[] {renderFinishedSemaphore};
+
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    if(vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to submit draw command buffer!");
+    }
+
+    VkPresentInfoKHR presentInfo {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.pNext = nullptr; // No extension information
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    VkSwapchainKHR swapChains[] {swapChain};
+
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = &imageIndex;
+    presentInfo.pResults = nullptr; // Optional
+
+    vkQueuePresentKHR(presentQueue, &presentInfo);
+    vkQueueWaitIdle(presentQueue);
 }
 
 void YerbaEngine::initWindow()
@@ -890,6 +940,8 @@ void YerbaEngine::mainLoop()
         glfwPollEvents();
         drawFrame();
     }
+
+    vkDeviceWaitIdle(device);
 }
 
 void YerbaEngine::cleanup()
