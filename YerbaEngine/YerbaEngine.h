@@ -86,6 +86,7 @@ private:
     void createImageViews();
     void createGraphicsPipeline();
     VkShaderModule createShaderModule(const std::vector<char>& code);
+    void createRenderPass();
 
     void initWindow();
     void initVulkan();
