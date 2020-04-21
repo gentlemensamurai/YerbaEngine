@@ -64,6 +64,7 @@ private:
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
     std::vector<VkImageView> swapChainImageViews;
+    VkPipelineLayout pipelineLayout;
 
     static std::vector<char> readFile(const std::string& filename);
     std::vector<const char*> getRequiredExtensions();
