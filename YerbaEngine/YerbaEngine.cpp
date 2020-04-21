@@ -769,6 +769,22 @@ void YerbaEngine::createFramebuffers()
     }
 }
 
+void YerbaEngine::createCommandPool()
+{
+    QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
+
+    VkCommandPoolCreateInfo poolInfo {};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.pNext = nullptr; // No extension information
+    poolInfo.flags = 0; // Optional
+    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+
+    if(vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create command pool!");
+    }
+}
+
 void YerbaEngine::initWindow()
 {
     glfwInit();
@@ -789,6 +805,7 @@ void YerbaEngine::initVulkan()
     createRenderPass();
     createGraphicsPipeline();
     createFramebuffers();
+    createCommandPool();
 }
 
 void YerbaEngine::mainLoop()
@@ -801,6 +818,8 @@ void YerbaEngine::mainLoop()
 
 void YerbaEngine::cleanup()
 {
+    vkDestroyCommandPool(device, commandPool, nullptr);
+
     for(auto framebuffer : swapChainFramebuffers)
     {
         vkDestroyFramebuffer(device, framebuffer, nullptr);
