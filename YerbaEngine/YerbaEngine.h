@@ -71,6 +71,9 @@ private:
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
 
+    VkSemaphore imageAvailableSemaphore;
+    VkSemaphore renderFinishedSemaphore;
+
     static std::vector<char> readFile(const std::string& filename);
     std::vector<const char*> getRequiredExtensions();
     bool checkValidationLayersSupport();
@@ -95,6 +98,9 @@ private:
     void createFramebuffers();
     void createCommandPool();
     void createCommandBuffers();
+    void createSemaphores();
+
+    void drawFrame();
 
     void initWindow();
     void initVulkan();

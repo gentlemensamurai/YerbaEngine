@@ -837,8 +837,25 @@ void YerbaEngine::createCommandBuffers()
             throw std::runtime_error("Failed to record command buffer!");
         }
     }
+}
 
-    
+void YerbaEngine::createSemaphores()
+{
+    VkSemaphoreCreateInfo semaphoreInfo {};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    semaphoreInfo.pNext = nullptr; // No extension information
+    //semaphoreInfo.flags;
+
+    if(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS ||
+       vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create semaphores!");
+    }
+}
+
+void YerbaEngine::drawFrame()
+{
+
 }
 
 void YerbaEngine::initWindow()
@@ -863,6 +880,7 @@ void YerbaEngine::initVulkan()
     createFramebuffers();
     createCommandPool();
     createCommandBuffers();
+    createSemaphores();
 }
 
 void YerbaEngine::mainLoop()
@@ -870,11 +888,14 @@ void YerbaEngine::mainLoop()
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
+        drawFrame();
     }
 }
 
 void YerbaEngine::cleanup()
 {
+    vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
+    vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
     vkDestroyCommandPool(device, commandPool, nullptr);
 
     for(auto framebuffer : swapChainFramebuffers)
