@@ -69,6 +69,7 @@ private:
     VkPipeline graphicsPipeline;
     std::vector<VkFramebuffer> swapChainFramebuffers;
     VkCommandPool commandPool;
+    std::vector<VkCommandBuffer> commandBuffers;
 
     static std::vector<char> readFile(const std::string& filename);
     std::vector<const char*> getRequiredExtensions();
@@ -93,6 +94,7 @@ private:
     void createRenderPass();
     void createFramebuffers();
     void createCommandPool();
+    void createCommandBuffers();
 
     void initWindow();
     void initVulkan();
