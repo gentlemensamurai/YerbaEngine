@@ -353,7 +353,12 @@ VkExtent2D YerbaEngine::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabil
     }
     else
     {
-        VkExtent2D actualExtent {WIDTH, HEIGHT};
+        int width {0};
+        int height {0};
+
+        glfwGetFramebufferSize(window, &width, &height);
+
+        VkExtent2D actualExtent {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 
         actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
         actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));    
@@ -931,9 +936,44 @@ void YerbaEngine::drawFrame()
     presentInfo.pResults = nullptr; // Optional
 
     vkQueuePresentKHR(presentQueue, &presentInfo);
-    vkQueueWaitIdle(presentQueue);
+    //vkQueueWaitIdle(presentQueue);
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+void YerbaEngine::recreateSwapChain()
+{
+    vkDeviceWaitIdle(device);
+
+    cleanupSwapChain();
+
+    createSwapChain();
+    createImageViews();
+    createRenderPass();
+    createGraphicsPipeline();
+    createFramebuffers();
+    createCommandBuffers();
+}
+
+void YerbaEngine::cleanupSwapChain()
+{
+    for(auto framebuffer : swapChainFramebuffers)
+    {
+        vkDestroyFramebuffer(device, framebuffer, nullptr);
+    }
+
+    vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+
+    vkDestroyPipeline(device, graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+    vkDestroyRenderPass(device, renderPass, nullptr);
+
+    for(auto imageView : swapChainImageViews)
+    {
+        vkDestroyImageView(device, imageView, nullptr);
+    }
+
+    vkDestroySwapchainKHR(device, swapChain, nullptr);
 }
 
 void YerbaEngine::initWindow()
@@ -974,6 +1014,8 @@ void YerbaEngine::mainLoop()
 
 void YerbaEngine::cleanup()
 {
+    cleanupSwapChain();
+
     for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
         vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -982,22 +1024,6 @@ void YerbaEngine::cleanup()
     }
 
     vkDestroyCommandPool(device, commandPool, nullptr);
-
-    for(auto framebuffer : swapChainFramebuffers)
-    {
-        vkDestroyFramebuffer(device, framebuffer, nullptr);
-    }
-
-    vkDestroyPipeline(device, graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-    vkDestroyRenderPass(device, renderPass, nullptr);
-
-    for(auto imageView : swapChainImageViews)
-    {
-        vkDestroyImageView(device, imageView, nullptr);
-    }
-
-    vkDestroySwapchainKHR(device, swapChain, nullptr);
     vkDestroyDevice(device, nullptr);
 
     if(ENABLE_VALIDATION_LAYERS)

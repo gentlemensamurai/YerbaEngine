@@ -105,6 +105,8 @@ private:
     void createSyncObjects();
 
     void drawFrame();
+    void recreateSwapChain();
+    void cleanupSwapChain();
 
     void initWindow();
     void initVulkan();
