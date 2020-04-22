@@ -44,6 +44,7 @@ private:
     const int HEIGHT {600};
     const std::vector<const char*> VALIDATION_LAYERS { "VK_LAYER_KHRONOS_validation" };
     const std::vector<const char*> DEVICE_EXTENSIONS { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+    const int MAX_FRAMES_IN_FLIGHT {2};
 
 #ifndef _DEBUG
     const bool ENABLE_VALIDATION_LAYERS {false};
@@ -71,8 +72,11 @@ private:
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
 
-    VkSemaphore imageAvailableSemaphore;
-    VkSemaphore renderFinishedSemaphore;
+    std::vector<VkSemaphore> imageAvailableSemaphores;
+    std::vector<VkSemaphore> renderFinishedSemaphores;
+    std::vector<VkFence> inFlightFences;
+    std::vector<VkFence> imagesInFlight;
+    size_t currentFrame {0};
 
     static std::vector<char> readFile(const std::string& filename);
     std::vector<const char*> getRequiredExtensions();
@@ -98,7 +102,7 @@ private:
     void createFramebuffers();
     void createCommandPool();
     void createCommandBuffers();
-    void createSemaphores();
+    void createSyncObjects();
 
     void drawFrame();
 
