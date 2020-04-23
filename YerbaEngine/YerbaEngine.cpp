@@ -969,6 +969,17 @@ void YerbaEngine::drawFrame()
 
 void YerbaEngine::recreateSwapChain()
 {
+    int width {0};
+    int height {0};
+
+    glfwGetFramebufferSize(window, &width, &height);
+
+    while(width == 0 || height == 0)
+    {
+        glfwGetFramebufferSize(window, &width, &height);
+        glfwWaitEvents();
+    }
+
     vkDeviceWaitIdle(device);
 
     cleanupSwapChain();
