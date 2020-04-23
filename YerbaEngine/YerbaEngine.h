@@ -18,6 +18,8 @@
 #include <cstdint>
 #include <algorithm>
 #include <fstream>
+#include <glm/glm.hpp>
+#include <array>
 
 struct QueueFamilyIndices
 {
@@ -37,6 +39,37 @@ struct SwapChainSupportDetails
     std::vector<VkPresentModeKHR> presentModes;
 };
 
+struct Vertex
+{
+    glm::vec2 pos;
+    glm::vec3 color;
+
+    static VkVertexInputBindingDescription getBindingDescription()
+    {
+        VkVertexInputBindingDescription bindingDescription {};
+        bindingDescription.binding = 0;
+        bindingDescription.stride = sizeof(Vertex);
+        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        return bindingDescription;
+    }
+
+    static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescription()
+    {
+        std::array<VkVertexInputAttributeDescription, 2> attributeDescription {};
+        attributeDescription[0].location = 0;
+        attributeDescription[0].binding = 0;
+        attributeDescription[0].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescription[0].offset = offsetof(Vertex, pos);
+        attributeDescription[1].location = 1;
+        attributeDescription[1].binding = 0;
+        attributeDescription[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+        attributeDescription[1].offset = offsetof(Vertex, color);
+
+        return attributeDescription;
+    }
+};
+
 class YerbaEngine
 {
 private:
@@ -45,6 +78,13 @@ private:
     const std::vector<const char*> VALIDATION_LAYERS { "VK_LAYER_KHRONOS_validation" };
     const std::vector<const char*> DEVICE_EXTENSIONS { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
     const int MAX_FRAMES_IN_FLIGHT {2};
+
+    const std::vector<Vertex> VERTICES
+    {
+        {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+        {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+        {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+    };
 
 #ifndef _DEBUG
     const bool ENABLE_VALIDATION_LAYERS {false};
