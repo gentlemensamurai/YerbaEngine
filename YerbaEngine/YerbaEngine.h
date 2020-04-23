@@ -78,7 +78,11 @@ private:
     std::vector<VkFence> imagesInFlight;
     size_t currentFrame {0};
 
+    bool framebufferResized {false};
+
     static std::vector<char> readFile(const std::string& filename);
+    static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+
     std::vector<const char*> getRequiredExtensions();
     bool checkValidationLayersSupport();
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);

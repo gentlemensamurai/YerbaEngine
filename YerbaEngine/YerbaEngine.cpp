@@ -61,6 +61,12 @@ std::vector<char> YerbaEngine::readFile(const std::string& filename)
     return buffer;
 }
 
+void YerbaEngine::framebufferResizeCallback(GLFWwindow* window, int width, int height)
+{
+    auto app = reinterpret_cast<YerbaEngine*>(glfwGetWindowUserPointer(window));
+    app->framebufferResized = true;
+}
+
 std::vector<const char*> YerbaEngine::getRequiredExtensions()
 {
     uint32_t glfwExtensionCount {0};
@@ -948,8 +954,9 @@ void YerbaEngine::drawFrame()
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
     //vkQueueWaitIdle(presentQueue);
 
-    if(result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+    if(result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
     {
+        framebufferResized = false;
         recreateSwapChain();
     }
     else if(result != VK_SUCCESS)
@@ -999,8 +1006,9 @@ void YerbaEngine::initWindow()
 {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // No OpenGL context
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // No possible to resize
     window = glfwCreateWindow(WIDTH, HEIGHT, "Yerba Engine", nullptr, nullptr);
+    glfwSetWindowUserPointer(window, this);
+    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }
 
 void YerbaEngine::initVulkan()
