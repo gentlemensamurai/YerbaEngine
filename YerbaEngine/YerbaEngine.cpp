@@ -853,7 +853,18 @@ void YerbaEngine::createCommandBuffers()
 
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-        vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+
+        // Last code
+        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+        VkBuffer vertexBuffers[]{ vertexBuffer };
+        VkDeviceSize offsets[]{ 0 };
+
+        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+        vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(VERTICES.size()), 1, 0, 0);
+        // Last code
+
+        //vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
         vkCmdEndRenderPass(commandBuffers[i]);
 
         if(vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
@@ -889,6 +900,61 @@ void YerbaEngine::createSyncObjects()
             throw std::runtime_error("Failed to create synchronization objects for a frame!");
         }
     }
+}
+
+void YerbaEngine::createVertexBuffer()
+{
+    VkBufferCreateInfo bufferInfo {};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.pNext = nullptr; // No extension information
+    //bufferInfo.flags;
+    bufferInfo.size = sizeof(VERTICES[0]) * VERTICES.size();
+    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    //bufferInfo.queueFamilyIndexCount;
+    //bufferInfo.pQueueFamilyIndices;
+
+    if(vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create vertex buffer!");
+    }
+
+    VkMemoryRequirements memRequirements {};
+    vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocateInfo {};
+    allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocateInfo.pNext = nullptr; // No extension information
+    allocateInfo.allocationSize = memRequirements.size;
+
+    VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+    allocateInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+
+    if(vkAllocateMemory(device, &allocateInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to allocate vertex buffer memory!");
+    }
+
+    vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
+
+    void* data;
+    vkMapMemory(device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
+    memcpy(data, VERTICES.data(), (size_t)(bufferInfo.size));
+    vkUnmapMemory(device, vertexBufferMemory);
+}
+
+uint32_t YerbaEngine::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+{
+    VkPhysicalDeviceMemoryProperties memProperties {};
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+
+    for(uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+    {
+        if((typeFilter & (1 << i)) && ((memProperties.memoryTypes[i].propertyFlags & properties) == properties)) return i;
+    }
+
+    throw std::runtime_error("Failed to find suitable memory type!");
 }
 
 void YerbaEngine::drawFrame()
@@ -1038,6 +1104,7 @@ void YerbaEngine::initVulkan()
     createGraphicsPipeline();
     createFramebuffers();
     createCommandPool();
+    createVertexBuffer();
     createCommandBuffers();
     createSyncObjects();
 }
@@ -1056,6 +1123,9 @@ void YerbaEngine::mainLoop()
 void YerbaEngine::cleanup()
 {
     cleanupSwapChain();
+
+    vkDestroyBuffer(device, vertexBuffer, nullptr);
+    vkFreeMemory(device, vertexBufferMemory, nullptr);
 
     for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {

@@ -81,7 +81,7 @@ private:
 
     const std::vector<Vertex> VERTICES
     {
-        {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+        {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
         {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
         {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
     };
@@ -111,6 +111,8 @@ private:
     std::vector<VkFramebuffer> swapChainFramebuffers;
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
+    VkBuffer vertexBuffer;
+    VkDeviceMemory vertexBufferMemory;
 
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -147,6 +149,8 @@ private:
     void createCommandPool();
     void createCommandBuffers();
     void createSyncObjects();
+    void createVertexBuffer();
+    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
     void drawFrame();
     void recreateSwapChain();
