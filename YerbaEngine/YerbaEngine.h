@@ -18,8 +18,12 @@
 #include <cstdint>
 #include <algorithm>
 #include <fstream>
-#include <glm/glm.hpp>
 #include <array>
+#include <chrono>
+
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 struct QueueFamilyIndices
 {
@@ -70,6 +74,13 @@ struct Vertex
     }
 };
 
+struct UniformBufferObject
+{
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
+
 class YerbaEngine
 {
 private:
@@ -109,6 +120,7 @@ private:
     VkExtent2D swapChainExtent;
     std::vector<VkImageView> swapChainImageViews;
     VkRenderPass renderPass;
+    VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
     std::vector<VkFramebuffer> swapChainFramebuffers;
@@ -118,13 +130,15 @@ private:
     VkDeviceMemory vertexBufferMemory;
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
-
+    VkDescriptorPool descriptorPool;
+    std::vector<VkDescriptorSet> descriptorSets;
+    std::vector<VkBuffer> uniformBuffers;
+    std::vector<VkDeviceMemory> uniformBuffersMemory;
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> inFlightFences;
     std::vector<VkFence> imagesInFlight;
     size_t currentFrame {0};
-
     bool framebufferResized {false};
 
     static std::vector<char> readFile(const std::string& filename);
@@ -158,8 +172,12 @@ private:
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMem);
     void createVertexBuffer();
     void createIndexBuffer();
+    void createUniformBuffers();
+    void createDescriptorPool();
+    void createDescriptorSets();
+    void createDescriptorSetLayout();
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-
+    void updateUniformBuffer(uint32_t currentImage);
     void drawFrame();
     void recreateSwapChain();
     void cleanupSwapChain();
