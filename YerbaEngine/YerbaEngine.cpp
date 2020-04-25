@@ -134,8 +134,8 @@ void YerbaEngine::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateIn
 {
     createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    createInfo.pNext = nullptr; // No extension information
-    //createInfo.flags;
+    createInfo.pNext = nullptr;
+    createInfo.flags = 0;
     createInfo.messageSeverity =
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
@@ -152,7 +152,7 @@ void YerbaEngine::createInstance()
 {
     VkApplicationInfo applicationInfo {};
     applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    applicationInfo.pNext = nullptr; // No extension information
+    applicationInfo.pNext = nullptr;
     applicationInfo.pApplicationName = "Mate Game";
     applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     applicationInfo.pEngineName = "Yerba Engine";
@@ -163,7 +163,7 @@ void YerbaEngine::createInstance()
 
     VkInstanceCreateInfo instanceCreateInfo {};
     instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    //instanceCreateInfo.flags;
+    instanceCreateInfo.flags = 0;
     instanceCreateInfo.pApplicationInfo = &applicationInfo;
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo {};
@@ -384,8 +384,8 @@ void YerbaEngine::createLogicalDevice()
     {
         VkDeviceQueueCreateInfo queueCreateInfo = {};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queueCreateInfo.pNext = nullptr; // No extension information
-        //queueCreateInfo.flags;
+        queueCreateInfo.pNext = nullptr;
+        queueCreateInfo.flags = 0;
         queueCreateInfo.queueFamilyIndex = queueFamily;
         queueCreateInfo.queueCount = 1;
         queueCreateInfo.pQueuePriorities = &queuePriority;
@@ -396,8 +396,8 @@ void YerbaEngine::createLogicalDevice()
 
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.pNext = nullptr; // No extension information
-    //createInfo.flags;
+    createInfo.pNext = nullptr;
+    createInfo.flags = 0;
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
@@ -451,8 +451,8 @@ void YerbaEngine::createSwapChain()
 
     VkSwapchainCreateInfoKHR createInfo {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.pNext = nullptr; // No extension information
-    //createInfo.flags;
+    createInfo.pNext = nullptr;
+    createInfo.flags = 0;
     createInfo.surface = surface;
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;
@@ -504,8 +504,8 @@ void YerbaEngine::createImageViews()
     {
         VkImageViewCreateInfo createInfo {};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        createInfo.pNext = nullptr; // No extension information
-        //createInfo.flags;
+        createInfo.pNext = nullptr;
+        createInfo.flags = 0;
         createInfo.image = swapChainImages[i];
         createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         createInfo.format = swapChainImageFormat;
@@ -536,8 +536,8 @@ void YerbaEngine::createGraphicsPipeline()
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo {};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    vertShaderStageInfo.pNext = nullptr; // No extension information
-    //vertShaderStageInfo.flags;
+    vertShaderStageInfo.pNext = nullptr;
+    vertShaderStageInfo.flags = 0;
     vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
     vertShaderStageInfo.module = vertShaderModule;
     vertShaderStageInfo.pName = "main";
@@ -545,8 +545,8 @@ void YerbaEngine::createGraphicsPipeline()
 
     VkPipelineShaderStageCreateInfo fragShaderStageInfo {};
     fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    fragShaderStageInfo.pNext = nullptr; // No extension information
-    //fragShaderStageInfo.flags;
+    fragShaderStageInfo.pNext = nullptr;
+    fragShaderStageInfo.flags = 0;
     fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
     fragShaderStageInfo.module = fragShaderModule;
     fragShaderStageInfo.pName = "main";
@@ -559,8 +559,8 @@ void YerbaEngine::createGraphicsPipeline()
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.pNext = nullptr; // No extension information
-    //vertexInputInfo.flags;
+    vertexInputInfo.pNext = nullptr;
+    vertexInputInfo.flags = 0;
     vertexInputInfo.vertexBindingDescriptionCount = 1;
     vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescription.size());
@@ -568,8 +568,8 @@ void YerbaEngine::createGraphicsPipeline()
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly {};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssembly.pNext = nullptr; // No extension information
-    //inputAssembly.flags;
+    inputAssembly.pNext = nullptr;
+    inputAssembly.flags = 0;
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
@@ -587,8 +587,8 @@ void YerbaEngine::createGraphicsPipeline()
 
     VkPipelineViewportStateCreateInfo viewportState {};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-    viewportState.pNext = nullptr; // No extension information
-    //viewportState.flags;
+    viewportState.pNext = nullptr;
+    viewportState.flags = 0;
     viewportState.viewportCount = 1;
     viewportState.pViewports = &viewport;
     viewportState.scissorCount = 1;
@@ -596,8 +596,8 @@ void YerbaEngine::createGraphicsPipeline()
 
     VkPipelineRasterizationStateCreateInfo rasterizer {};
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-    rasterizer.pNext = nullptr; // No extension information
-    //rasterizer.flags;
+    rasterizer.pNext = nullptr;
+    rasterizer.flags = 0;
     rasterizer.depthClampEnable = VK_FALSE;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
@@ -611,8 +611,8 @@ void YerbaEngine::createGraphicsPipeline()
 
     VkPipelineMultisampleStateCreateInfo multisampling {};
     multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    multisampling.pNext = nullptr; // No extension information
-    //multisampling.flags;
+    multisampling.pNext = nullptr;
+    multisampling.flags = 0;
     multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
     multisampling.sampleShadingEnable = VK_FALSE;
     multisampling.minSampleShading = 1.0f; // Optional
@@ -637,8 +637,8 @@ void YerbaEngine::createGraphicsPipeline()
 
     VkPipelineColorBlendStateCreateInfo colorBlending {};
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlending.pNext = nullptr; // No extension information
-    //colorBlending.flags;
+    colorBlending.pNext = nullptr;
+    colorBlending.flags = 0;
     colorBlending.logicOpEnable = VK_FALSE;
     colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
     colorBlending.attachmentCount = 1;
@@ -650,8 +650,8 @@ void YerbaEngine::createGraphicsPipeline()
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.pNext = nullptr; // No extension information
-    //pipelineLayoutInfo.flags;
+    pipelineLayoutInfo.pNext = nullptr;
+    pipelineLayoutInfo.flags = 0;
     pipelineLayoutInfo.setLayoutCount = 0; // Optiona;
     pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
@@ -664,8 +664,8 @@ void YerbaEngine::createGraphicsPipeline()
 
     VkGraphicsPipelineCreateInfo pipelineInfo {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.pNext = nullptr; // No extension information
-    //pipelineInfo.flags;
+    pipelineInfo.pNext = nullptr;
+    pipelineInfo.flags = 0;
     pipelineInfo.stageCount = 2;
     pipelineInfo.pStages = shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
@@ -696,8 +696,8 @@ VkShaderModule YerbaEngine::createShaderModule(const std::vector<char>& code)
 {
     VkShaderModuleCreateInfo createInfo {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.pNext = nullptr; // No extension information
-    //createInfo.flags;
+    createInfo.pNext = nullptr;
+    createInfo.flags = 0;
     createInfo.codeSize = code.size();
     createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
@@ -752,8 +752,8 @@ void YerbaEngine::createRenderPass()
 
     VkRenderPassCreateInfo renderPassInfo {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.pNext = nullptr; // No extension information
-    //renderPassInfo.flags;
+    renderPassInfo.pNext = nullptr;
+    renderPassInfo.flags = 0;
     renderPassInfo.attachmentCount = 1;
     renderPassInfo.pAttachments = &colorAttachment;
     renderPassInfo.subpassCount = 1;
@@ -777,8 +777,8 @@ void YerbaEngine::createFramebuffers()
 
         VkFramebufferCreateInfo framebufferInfo {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.pNext = nullptr; // No extension information
-        //framebufferInfo.flags;
+        framebufferInfo.pNext = nullptr;
+        framebufferInfo.flags = 0;
         framebufferInfo.renderPass = renderPass;
         framebufferInfo.attachmentCount = 1;
         framebufferInfo.pAttachments = attachments;
@@ -799,8 +799,8 @@ void YerbaEngine::createCommandPool()
 
     VkCommandPoolCreateInfo poolInfo {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.pNext = nullptr; // No extension information
-    poolInfo.flags = 0; // Optional
+    poolInfo.pNext = nullptr;
+    poolInfo.flags = 0;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
     if(vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
@@ -902,51 +902,9 @@ void YerbaEngine::createSyncObjects()
     }
 }
 
-void YerbaEngine::createVertexBuffer()
-{
-    VkBufferCreateInfo bufferInfo {};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.pNext = nullptr; // No extension information
-    //bufferInfo.flags;
-    bufferInfo.size = sizeof(VERTICES[0]) * VERTICES.size();
-    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    //bufferInfo.queueFamilyIndexCount;
-    //bufferInfo.pQueueFamilyIndices;
-
-    if(vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS)
-    {
-        throw std::runtime_error("Failed to create vertex buffer!");
-    }
-
-    VkMemoryRequirements memRequirements {};
-    vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
-
-    VkMemoryAllocateInfo allocateInfo {};
-    allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocateInfo.pNext = nullptr; // No extension information
-    allocateInfo.allocationSize = memRequirements.size;
-
-    VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-
-    allocateInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
-
-    if(vkAllocateMemory(device, &allocateInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS)
-    {
-        throw std::runtime_error("Failed to allocate vertex buffer memory!");
-    }
-
-    vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
-
-    void* data;
-    vkMapMemory(device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-    memcpy(data, VERTICES.data(), (size_t)(bufferInfo.size));
-    vkUnmapMemory(device, vertexBufferMemory);
-}
-
 uint32_t YerbaEngine::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 {
-    VkPhysicalDeviceMemoryProperties memProperties {};
+    VkPhysicalDeviceMemoryProperties memProperties{};
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
     for(uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
@@ -955,6 +913,59 @@ uint32_t YerbaEngine::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags 
     }
 
     throw std::runtime_error("Failed to find suitable memory type!");
+}
+
+void YerbaEngine::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMem)
+{
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.pNext = nullptr;
+    bufferInfo.flags = 0;
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    //bufferInfo.queueFamilyIndexCount;
+    //bufferInfo.pQueueFamilyIndices;
+
+    if(vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create buffer!");
+    }
+
+    VkMemoryRequirements memRequirements{};
+    vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocateInfo{};
+    allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocateInfo.pNext = nullptr;
+    allocateInfo.allocationSize = memRequirements.size;
+    allocateInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+
+    if(vkAllocateMemory(device, &allocateInfo, nullptr, &bufferMem) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to allocate buffer memory!");
+    }
+
+    vkBindBufferMemory(device, buffer, bufferMem, 0);
+}
+
+void YerbaEngine::createVertexBuffer()
+{
+    VkDeviceSize bufferSize = sizeof(VERTICES[0]) * VERTICES.size();
+
+    createBuffer
+    (
+        bufferSize,
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        vertexBuffer,
+        vertexBufferMemory
+    );
+
+    void* data;
+    vkMapMemory(device, vertexBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, VERTICES.data(), (size_t)(bufferSize));
+    vkUnmapMemory(device, vertexBufferMemory);
 }
 
 void YerbaEngine::drawFrame()
