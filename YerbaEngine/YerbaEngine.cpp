@@ -815,7 +815,7 @@ void YerbaEngine::createCommandBuffers()
 
     VkCommandBufferAllocateInfo allocInfo {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.pNext = nullptr; // No extension information
+    allocInfo.pNext = nullptr;
     allocInfo.commandPool = commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = (uint32_t)(commandBuffers.size());
@@ -829,8 +829,8 @@ void YerbaEngine::createCommandBuffers()
     {
         VkCommandBufferBeginInfo beginInfo {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.pNext = nullptr; // No extension information
-        beginInfo.flags = 0; // Optional
+        beginInfo.pNext = nullptr;
+        beginInfo.flags = 0;
         beginInfo.pInheritanceInfo = nullptr; // Optional
 
         if(vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
@@ -840,7 +840,7 @@ void YerbaEngine::createCommandBuffers()
 
         VkRenderPassBeginInfo renderPassInfo {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.pNext = nullptr; // No extension information
+        renderPassInfo.pNext = nullptr;
         renderPassInfo.renderPass = renderPass;
         renderPassInfo.framebuffer = swapChainFramebuffers[i];
         renderPassInfo.renderArea.offset = {0, 0};
@@ -854,17 +854,12 @@ void YerbaEngine::createCommandBuffers()
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-        // Last code
-        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
         VkBuffer vertexBuffers[]{ vertexBuffer };
         VkDeviceSize offsets[]{ 0 };
 
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-        vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(VERTICES.size()), 1, 0, 0);
-        // Last code
-
-        //vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+        vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(INDICES.size()), 1, 0, 0, 0);
         vkCmdEndRenderPass(commandBuffers[i]);
 
         if(vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
@@ -883,12 +878,12 @@ void YerbaEngine::createSyncObjects()
 
     VkSemaphoreCreateInfo semaphoreInfo {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    semaphoreInfo.pNext = nullptr; // No extension information
-    //semaphoreInfo.flags;
+    semaphoreInfo.pNext = nullptr;
+    semaphoreInfo.flags = 0;
 
     VkFenceCreateInfo fenceInfo {};
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceInfo.pNext = nullptr; // No extension information
+    fenceInfo.pNext = nullptr;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
@@ -984,6 +979,41 @@ void YerbaEngine::createVertexBuffer()
     vkFreeMemory(device, stagingBufferMem, nullptr);
 }
 
+void YerbaEngine::createIndexBuffer()
+{
+    VkDeviceSize bufferSize = sizeof(INDICES[0]) * INDICES.size();
+    VkBuffer stagingBuffer {};
+    VkDeviceMemory stagingBufferMem {};
+
+    createBuffer
+    (
+        bufferSize,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        stagingBuffer,
+        stagingBufferMem
+    );
+
+    void* data;
+    vkMapMemory(device, stagingBufferMem, 0, bufferSize, 0, &data);
+    memcpy(data, INDICES.data(), (size_t)(bufferSize));
+    vkUnmapMemory(device, stagingBufferMem);
+
+    createBuffer
+    (
+        bufferSize,
+        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+        indexBuffer,
+        indexBufferMemory
+    );
+
+    copyBuffer(stagingBuffer, indexBuffer, bufferSize);
+
+    vkDestroyBuffer(device, stagingBuffer, nullptr);
+    vkFreeMemory(device, stagingBufferMem, nullptr);
+}
+
 void YerbaEngine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 {
     VkCommandBufferAllocateInfo allocateInfo {};
@@ -1056,7 +1086,7 @@ void YerbaEngine::drawFrame()
 
     VkSubmitInfo submitInfo {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.pNext = nullptr; // No extension information
+    submitInfo.pNext = nullptr;
 
     VkSemaphore waitSemaphores[] {imageAvailableSemaphores[currentFrame]};
     VkPipelineStageFlags waitStages[] {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
@@ -1081,7 +1111,7 @@ void YerbaEngine::drawFrame()
 
     VkPresentInfoKHR presentInfo {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.pNext = nullptr; // No extension information
+    presentInfo.pNext = nullptr;
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
 
@@ -1177,6 +1207,7 @@ void YerbaEngine::initVulkan()
     createFramebuffers();
     createCommandPool();
     createVertexBuffer();
+    createIndexBuffer();
     createCommandBuffers();
     createSyncObjects();
 }
@@ -1196,6 +1227,8 @@ void YerbaEngine::cleanup()
 {
     cleanupSwapChain();
 
+    vkDestroyBuffer(device, indexBuffer, nullptr);
+    vkFreeMemory(device, indexBufferMemory, nullptr);
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
 
