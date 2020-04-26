@@ -230,10 +230,13 @@ bool YerbaEngine::isDeviceSuitable(VkPhysicalDevice device)
     bool extensionsSupported = checkDeviceExtensionSupport(device);
     bool swapChainAdequate {false};
 
+    VkPhysicalDeviceFeatures supportedFeatures {};
+    vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
     if(extensionsSupported)
     {
         SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
-        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty() && supportedFeatures.samplerAnisotropy;
     }
 
     return indices.isComplete() && extensionsSupported && swapChainAdequate;
@@ -396,6 +399,9 @@ void YerbaEngine::createLogicalDevice()
     }
 
     VkPhysicalDeviceFeatures deviceFeatures = {};
+    // ...
+    deviceFeatures.samplerAnisotropy = VK_TRUE;
+    // ...
 
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
