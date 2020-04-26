@@ -1,5 +1,8 @@
 #include "YerbaEngine.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 VkResult CreateDebugUtilsMessengerEXT
 (
     VkInstance instance,
@@ -809,6 +812,172 @@ void YerbaEngine::createCommandPool()
     }
 }
 
+void YerbaEngine::createImage
+(
+    uint32_t width,
+    uint32_t height,
+    VkFormat format,
+    VkImageTiling tiling,
+    VkImageUsageFlags usage,
+    VkMemoryPropertyFlags properties,
+    VkImage& image,
+    VkDeviceMemory& imageMemory
+)
+{
+    VkImageCreateInfo imageInfo{};
+    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageInfo.pNext = nullptr;
+    imageInfo.flags = 0;
+    imageInfo.imageType = VK_IMAGE_TYPE_2D;
+    imageInfo.format = format;
+    imageInfo.extent.width = width;
+    imageInfo.extent.height = height;
+    imageInfo.extent.depth = 1;
+    imageInfo.mipLevels = 1;
+    imageInfo.arrayLayers = 1;
+    imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageInfo.tiling = tiling;
+    imageInfo.usage = usage;
+    imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    //imageInfo.queueFamilyIndexCount;
+    //imageInfo.pQueueFamilyIndices;
+    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+    if(vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create image!");
+    }
+
+    VkMemoryRequirements memRequirements{};
+    vkGetImageMemoryRequirements(device, image, &memRequirements);
+
+    VkMemoryAllocateInfo allocateInfo{};
+    allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocateInfo.pNext = nullptr;
+    allocateInfo.allocationSize = memRequirements.size;
+    allocateInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+
+    if(vkAllocateMemory(device, &allocateInfo, nullptr, &imageMemory) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to allocate image memory!");
+    }
+
+    vkBindImageMemory(device, image, imageMemory, 0);
+}
+
+void YerbaEngine::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
+{
+    VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+    VkImageMemoryBarrier barrier {};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.pNext = nullptr;
+    barrier.srcAccessMask = 0;
+    barrier.dstAccessMask = 0;
+    barrier.oldLayout = oldLayout;
+    barrier.newLayout = newLayout;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image = image;
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+
+    vkCmdPipelineBarrier(commandBuffer, 0, 0, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+    endSingleTimeCommands(commandBuffer);
+}
+
+void YerbaEngine::createTextureImage()
+{
+    int texWidth {0};
+    int texHeight {0};
+    int texChannels {0};
+    stbi_uc* pixels {stbi_load("Textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha)};
+    VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+    if(pixels == nullptr)
+    {
+        throw std::runtime_error("Failed to load texture image!");
+    }
+
+    VkBuffer stagingBuffer {};
+    VkDeviceMemory stagingBufferMemory {};
+
+    createBuffer
+    (
+        imageSize,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        stagingBuffer,
+        stagingBufferMemory
+    );
+
+    void* data;
+    vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
+    memcpy(data, pixels, static_cast<size_t>(imageSize));
+    vkUnmapMemory(device, stagingBufferMemory);
+
+    stbi_image_free(pixels);
+
+    createImage
+    (
+        texWidth,
+        texHeight,
+        VK_FORMAT_R8G8B8A8_SRGB,
+        VK_IMAGE_TILING_OPTIMAL,
+        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+        textureImage,
+        textureImageMemory
+    );
+}
+
+VkCommandBuffer YerbaEngine::beginSingleTimeCommands()
+{
+    VkCommandBufferAllocateInfo allocateInfo {};
+    allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocateInfo.pNext = nullptr;
+    allocateInfo.commandPool = commandPool;
+    allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocateInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer {};
+    vkAllocateCommandBuffers(device, &allocateInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.pNext = nullptr;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    beginInfo.pInheritanceInfo = nullptr;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    return commandBuffer;
+}
+void YerbaEngine::endSingleTimeCommands(VkCommandBuffer commandBuffer)
+{
+    vkEndCommandBuffer(commandBuffer);
+
+    VkSubmitInfo submitInfo {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.pNext = nullptr;
+    //submitInfo.waitSemaphoreCount;
+    //submitInfo.pWaitSemaphores;
+    //submitInfo.pWaitDstStageMask;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+    //submitInfo.signalSemaphoreCount;
+    //submitInfo.pSignalSemaphores;
+
+    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(graphicsQueue);
+
+    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+}
+
 void YerbaEngine::createCommandBuffers()
 {
     commandBuffers.resize(swapChainFramebuffers.size());
@@ -911,7 +1080,14 @@ uint32_t YerbaEngine::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags 
     throw std::runtime_error("Failed to find suitable memory type!");
 }
 
-void YerbaEngine::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMem)
+void YerbaEngine::createBuffer
+(
+    VkDeviceSize size,
+    VkBufferUsageFlags usage,
+    VkMemoryPropertyFlags properties,
+    VkBuffer& buffer,
+    VkDeviceMemory& bufferMem
+)
 {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -1119,47 +1295,16 @@ void YerbaEngine::createDescriptorSetLayout()
 
 void YerbaEngine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 {
-    VkCommandBufferAllocateInfo allocateInfo {};
-    allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocateInfo.pNext = nullptr;
-    allocateInfo.commandPool = commandPool;
-    allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocateInfo.commandBufferCount = 1;
-
-    VkCommandBuffer commandBuffer {};
-    vkAllocateCommandBuffers(device, &allocateInfo, &commandBuffer);
-
-    VkCommandBufferBeginInfo beginInfo {};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.pNext = nullptr;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    //beginInfo.pInheritanceInfo;
-
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
     VkBufferCopy copyRegion {};
-    copyRegion.srcOffset = 0; // Optional
-    copyRegion.dstOffset = 0; // Optional
+    //copyRegion.srcOffset;
+    //copyRegion.dstOffset;
     copyRegion.size = size;
 
     vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-    vkEndCommandBuffer(commandBuffer);
 
-    VkSubmitInfo submitInfo {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.pNext = nullptr;
-    //submitInfo.waitSemaphoreCount;
-    //submitInfo.pWaitSemaphores;
-    //submitInfo.pWaitDstStageMask;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
-    //submitInfo.signalSemaphoreCount;
-    //submitInfo.pSignalSemaphores;
-
-    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(graphicsQueue);
-
-    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+    endSingleTimeCommands(commandBuffer);
 }
 
 void YerbaEngine::updateUniformBuffer(uint32_t currentImage)
@@ -1341,6 +1486,7 @@ void YerbaEngine::initVulkan()
     createGraphicsPipeline();
     createFramebuffers();
     createCommandPool();
+    createTextureImage();
     createVertexBuffer();
     createIndexBuffer();
     createUniformBuffers();

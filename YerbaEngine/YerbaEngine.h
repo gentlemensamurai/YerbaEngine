@@ -1,6 +1,7 @@
 // VulkanSDK 1.2.135.0
 // GLFW 3.3.2
 // GLM 0.9.9.7
+// stb
 
 #pragma once
 
@@ -22,6 +23,7 @@
 #include <chrono>
 
 #define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -76,9 +78,9 @@ struct Vertex
 
 struct UniformBufferObject
 {
-    glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 proj;
+    alignas(16) glm::mat4 model;
+    alignas(16) glm::mat4 view;
+    alignas(16) glm::mat4 proj;
 };
 
 class YerbaEngine
@@ -140,6 +142,8 @@ private:
     std::vector<VkFence> imagesInFlight;
     size_t currentFrame {0};
     bool framebufferResized {false};
+    VkImage textureImage;
+    VkDeviceMemory textureImageMemory;
 
     static std::vector<char> readFile(const std::string& filename);
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
@@ -166,10 +170,32 @@ private:
     void createRenderPass();
     void createFramebuffers();
     void createCommandPool();
+    void createImage
+    (
+        uint32_t width,
+        uint32_t height,
+        VkFormat format,
+        VkImageTiling tiling,
+        VkImageUsageFlags usage,
+        VkMemoryPropertyFlags properties,
+        VkImage& image,
+        VkDeviceMemory& imageMemory
+    );
+    void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+    void createTextureImage();
+    VkCommandBuffer beginSingleTimeCommands();
+    void endSingleTimeCommands(VkCommandBuffer commandBuffer);
     void createCommandBuffers();
     void createSyncObjects();
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMem);
+    void createBuffer
+    (
+        VkDeviceSize size,
+        VkBufferUsageFlags usage,
+        VkMemoryPropertyFlags properties,
+        VkBuffer& buffer,
+        VkDeviceMemory& bufferMem
+    );
     void createVertexBuffer();
     void createIndexBuffer();
     void createUniformBuffers();
