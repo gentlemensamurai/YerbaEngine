@@ -24,6 +24,7 @@
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -162,6 +163,9 @@ private:
     VkDeviceMemory textureImageMemory;
     VkImageView textureImageView;
     VkSampler textureSampler;
+    VkImage depthImage;
+    VkDeviceMemory depthImageMemory;
+    VkImageView depthImageView;
 
     static std::vector<char> readFile(const std::string& filename);
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
@@ -229,6 +233,10 @@ private:
     void drawFrame();
     void recreateSwapChain();
     void cleanupSwapChain();
+    bool hasStencilComponent(VkFormat format);
+    VkFormat findDepthFormat();
+    VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+    void createDepthResources();
 
     void initWindow();
     void initVulkan();
