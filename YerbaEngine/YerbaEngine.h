@@ -145,6 +145,7 @@ private:
     VkImage textureImage;
     VkDeviceMemory textureImageMemory;
     VkImageView textureImageView;
+    VkSampler textureSampler;
 
     static std::vector<char> readFile(const std::string& filename);
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
@@ -187,6 +188,7 @@ private:
     void createTextureImage();
     VkImageView createImageView(VkImage image, VkFormat format);
     void createTextureImageView();
+    void createTextureSampler();
     VkCommandBuffer beginSingleTimeCommands();
     void endSingleTimeCommands(VkCommandBuffer commandBuffer);
     void createCommandBuffers();
